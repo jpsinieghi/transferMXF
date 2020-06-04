@@ -16,6 +16,7 @@ ws.on('drain', function () {
 
 rs.on('end', function () {
   console.log('uploaded to ' + target);
+  //apagar arquivo de origem
 });
 
 ws.on('error', function (err) {
