@@ -6,10 +6,10 @@ var fs = require('fs');
 var app = express();
 
 app.set('port', process.env.PORT || 3000);
-app.use(express.logger('dev'));
-app.use(express.methodOverride());
-app.use(app.router);
-app.use(express.errorHandler());
+//app.use(express.logger('dev'));
+//app.use(express.methodOverride());
+//app.use(app.router);
+//app.use(express.errorHandler());
 
 app.post('/upload/:filename', function (req, res) {
   var filename = path.basename(req.params.filename);

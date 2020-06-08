@@ -1,32 +1,25 @@
-var express = require('express');
-var http = require('http');
+var request = require('request');
 var path = require('path');
 var fs = require('fs');
 
-var app = express();
+var filename = process.argv[2];
 
-var folder = 'C:/Users/cpd/source/repos/transferMXF/upload'
+var target = 'http://189.2.14.82:3000/upload/' + path.basename(filename);
 
-app.set('port', process.env.PORT || 3000);
-//app.use(express.logger('dev'));
-//app.use(express.methodOverride());
-//app.use(app.router);
-//app.use(express.errorHandler());
+var rs = fs.createReadStream(filename);
+var ws = request.post(target);
 
-app.post('/upload/:filename', function (req, res) {
-  var filename = path.basename(req.params.filename);
-  filename = path.resolve(folder, filename);
-  var dst = fs.createWriteStream(filename);
-  req.pipe(dst);
-  dst.on('drain', function() {
-    console.log(filename, new Date());
-    req.resume();
-  });
-  req.on('end', function () {
-    res.sendStatus(200);
-  });
+ws.on('drain', function () {
+  console.log('drain', new Date());
+  rs.resume();
 });
 
-http.createServer(app).listen(app.get('port'), function () {
-  console.log('Express server listening on port ' + app.get('port'));
+rs.on('end', function () {
+  console.log('uploaded to ' + target);
 });
+
+ws.on('error', function (err) {
+  console.error('cannot send file to ' + target + ': ' + err);
+});
+
+rs.pipe(ws);
