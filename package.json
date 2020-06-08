@@ -1,6 +1,8 @@
 {
   "dependencies": {
     "express": "^4.17.1",
+    "fs-readstream-progress": "^0.0.5",
+    "progress-stream": "^2.0.0",
     "request": "^2.88.2"
   }
 }

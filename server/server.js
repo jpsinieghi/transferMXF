@@ -11,20 +11,25 @@ app.set('port', process.env.PORT || 3000);
 //app.use(app.router);
 //app.use(express.errorHandler());
 
+
+
 app.post('/upload/:filename', function (req, res) {
-  var filename = path.basename(req.params.filename);
-  filename = path.resolve(__dirname, filename);
-  var dst = fs.createWriteStream(filename);
-  req.pipe(dst);
-  dst.on('drain', function() {
-    console.log('drain', new Date());
-    req.resume();
-  });
-  req.on('end', function () {
-    res.send(200);
-  });
+    var filename = path.basename(req.params.filename);
+    //filename = path.resolve(__dirname, filename);
+    filename = path.resolve('C:/Users/cpd/source/repos/transferMXF/server/MXF', filename);
+    var dst = fs.createWriteStream(filename);
+    req.pipe(dst);
+    dst.on('drain', function () {
+
+        console.log(dst.bytesWritten)
+
+        req.resume();
+    });
+    req.on('end', function () {
+        res.sendStatus(200);
+    });
 });
 
 http.createServer(app).listen(app.get('port'), function () {
-  console.log('Express server listening on port ' + app.get('port'));
+    console.log('Express server listening on port ' + app.get('port'));
 });
