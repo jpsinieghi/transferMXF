@@ -27,6 +27,10 @@ ws.on('drain', function(){
 
 rs.on('end', function () {
   console.log('uploaded to ' + target);
+  //apagar o arquivo transferido
+  console.log("Apagando "+filename)
+  fs.unlinkSync(filename)
+
 });
 
 ws.on('error', function (err) {

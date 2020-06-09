@@ -27,6 +27,7 @@ app.post('/upload/:filename', function (req, res) {
     });
     req.on('end', function () {
         res.sendStatus(200);
+        
     });
 });
 
