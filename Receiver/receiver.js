@@ -16,7 +16,7 @@ app.set('port', process.env.PORT || 3000);
 app.post('/upload/:filename', function (req, res) {
     var filename = path.basename(req.params.filename);
     //filename = path.resolve(__dirname, filename);
-    filename = path.resolve('C:/Users/cpd/source/repos/transferMXF/server/MXF', filename);
+    filename = path.resolve('C:/Users/cpd/source/repos/transferMXF/Receiver/MXF', filename);
     var dst = fs.createWriteStream(filename);
     req.pipe(dst);
     dst.on('drain', function () {
