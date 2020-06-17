@@ -1,64 +1,74 @@
 var request = require('request');
 var path = require('path');
 var fs = require('fs');
-
-//var filename = process.argv[2];
-
-//var target = 'http://189.2.14.82:3000/upload/' + path.basename(filename);
+var chokidar = require('chokidar');
 
 
+//\\10.0.95.171\Portugal\MXF
 
+var watcher = chokidar.watch('\\MXF\\', {ignored: /(^|[\/\\])\../, persistent: true, usePolling: true});
+var end_timeout = 10000;
 
 function transfer(arquivo){
   
-  //verificar se é MXF
-  extensaoArquivo = arquivo.split(".")[1]
-  if(arquivo.split(".")[1] === 'mxf'){
-    console.log(extensaoArquivo)
-    //console.log("Transferindo "+arquivo)
-    file_media = ".\\MXF\\"+arquivo
-
-
-    fs.renameSync(file_media,file_media+'.tmp')
-
-    target = ('http://189.2.14.82:3000/upload/' + arquivo);
-    ws = request.post(target)
-    rs = fs.createReadStream(file_media+'.tmp')
-    rs.on('error',function(){console.log("Arquivo ainda sendo copiado")})
-
-    ws.on('drain', function () {
-    //console.log("Transferindo " + target + "(" + (Math.round(rs.bytesRead / (fs.statSync(file_media))["size"] * 100)) + "%)")
-    rs.resume()
+  var file_media = arquivo.replace('\\\\','\\')
+  var file_media = file_media.split("\\")
+  target = ('http://189.2.14.82:3000/upload/' + file_media[6]);
+  ws = request.post(target)
+  rs = fs.createReadStream(arquivo)
+  //tamanhoArquivo = fs.statSync(file_media)["size"] * 100
+  ws.on('drain', function () {
+      //console.log("Transferindo " + target + "(" + (Math.round(rs.bytesRead / (fs.statSync(file_media))["size"] * 100)) + "%)")
+      //console.log("Transferindo " + target + "(" + (Math.round(rs.bytesRead / tamanhoArquivo)) + "%)")
+      //rs.close()
+      rs.resume()
     })
 
+               
     rs.on('end', function () {
-    //console.log(arquivo + " enviado")
-    fs.unlinkSync(file_media+'.tmp')
-
-    })
+      console.log(file_media[6] + " enviado")
+      fs.unlinkSync(arquivo)
   
-    ws.on('error', function (err) {
-    console.error('cannot send file to ' + target + ': ' + err);
-    })
-    
-    rs.pipe(ws)
-  }
-  else{
-    console.log("Extensão diferente de MXF")
+      })
 
-  }
+    ws.on('error', function (err) {
+        console.error('cannot send file to ' + target + ': ' + err);
+        })
+    
+    rs.pipe(ws)  
+
 }
 
-fs.readdir(path.join(__dirname, 'MXF'), function (err, files) {
-  if (files.length == 0) {
-    console.log("Sem arquivo")
-     }
-  else {
-    for(i=0;i<files.length;i++){
-      transfer(files[i])}
-    }
-})
+
+function checkEnd(path, prev) {
+  fs.stat(path, function (err, stat) {
+
+      // Replace error checking with something appropriate for your app.
+      if (err) throw err;
+      if (stat.mtime.getTime() === prev.mtime.getTime()) {
+          console.log("finished");
+          // Move on: call whatever needs to be called to process the file.
+        transfer(path)
+
+      }
+      else
+          setTimeout(checkEnd, end_timeout, path, stat);
+  });
+}
 
 
 
+//'P:\\home\\ftp\\incoming\\Portugal\\MXF\\'
 
+
+watcher
+    .on('add', function(path) {
+
+        console.log('File', path, 'has been added');
+
+        fs.stat(path, function (err, stat) {
+            // Replace error checking with something appropriate for your app.
+            if (err) throw err;
+            setTimeout(checkEnd, end_timeout, path, stat);
+        });
+});

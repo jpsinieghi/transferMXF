@@ -3,16 +3,14 @@ var path = require('path');
 var fs = require('fs');
 var chokidar = require('chokidar');
 
-//\\10.0.95.171\Portugal\MXF
-
-var watcher = chokidar.watch('P:\\home\\ftp\\incoming\\Portugal\\MXF\\', {ignored: /(^|[\/\\])\../, persistent: true, usePolling: true});
+var watcher = chokidar.watch('T:\\', {ignored: /(^|[\/\\])\../, persistent: true, usePolling: true});
 var end_timeout = 10000;
 
 function transfer(arquivo){
   
   var file_media = arquivo.replace('\\\\','\\')
   var file_media = file_media.split("\\")
-  target = ('http://189.2.14.82:3000/upload/' + file_media[6]);
+  target = ('http://189.2.14.82:3000/upload/' + file_media[1]);
   ws = request.post(target)
   rs = fs.createReadStream(arquivo)
   //tamanhoArquivo = fs.statSync(file_media)["size"] * 100
@@ -25,7 +23,7 @@ function transfer(arquivo){
 
                
     rs.on('end', function () {
-      console.log(file_media[6] + " enviado")
+      console.log(file_media[1] + ' enviado para Portugal com sucesso')
       fs.unlinkSync(arquivo)
   
       })
@@ -45,7 +43,7 @@ function checkEnd(path, prev) {
       // Replace error checking with something appropriate for your app.
       if (err) throw err;
       if (stat.mtime.getTime() === prev.mtime.getTime()) {
-          console.log("finished");
+          console.log('Arquivo', path, 'criado com sucesso');
           // Move on: call whatever needs to be called to process the file.
         transfer(path)
 
@@ -63,7 +61,7 @@ function checkEnd(path, prev) {
 watcher
     .on('add', function(path) {
 
-        console.log('File', path, 'has been added');
+        console.log('Arquivo', path, 'sendo criado na pasta');
 
         fs.stat(path, function (err, stat) {
             // Replace error checking with something appropriate for your app.
