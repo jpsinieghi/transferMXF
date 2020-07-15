@@ -3,30 +3,29 @@ var http = require('http');
 var path = require('path');
 var fs = require('fs');
 
+var CAMINHO = 'T:/transferMXF/Receiver/MXF'
 var app = express();
 
 app.set('port', process.env.PORT || 3000);
-//app.use(express.logger('dev'));
-//app.use(express.methodOverride());
-//app.use(app.router);
-//app.use(express.errorHandler());
 
 
 
 app.post('/upload/:filename', function (req, res) {
     var filename = path.basename(req.params.filename);
-    //filename = path.resolve(__dirname, filename);
-    filename = path.resolve('C:/Users/cpd/source/repos/transferMXF/Receiver/MXF', filename);
+    filename = path.resolve(CAMINHO, filename);
     var dst = fs.createWriteStream(filename);
+    console.log("Iniciando transferencia do arquivo "+dst.path)
     req.pipe(dst);
     dst.on('drain', function () {
 
-        console.log(dst.bytesWritten)
+	console.log(dst.path+" - "+dst.bytesWritten)
+	//console.clear()
 
         req.resume();
     });
     req.on('end', function () {
         res.sendStatus(200);
+	console.log("Transferencia completa do arquivo "+dst.path)
         
     });
 });

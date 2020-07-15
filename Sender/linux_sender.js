@@ -17,7 +17,7 @@ function transfer(arquivo){
   ws.on('drain', function () {
       rs.resume()
     })
-
+ 
                
     rs.on('end', function () {
       console.log('Arquivo',file_media[1],'enviado')
